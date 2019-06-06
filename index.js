@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import Autocomplete from './Autocomplete';
 import usStates from './us-states';
 import './main.css';
