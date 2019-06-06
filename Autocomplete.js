@@ -15,6 +15,8 @@ export default class Autocomplete {
     // Get data for the dropdown
     this.getResults(query, this.options.data).then(results => {
       this.updateDropdown(results);
+    }).catch(err => {
+      console.error(err);
     })
   }
 
@@ -26,7 +28,6 @@ export default class Autocomplete {
     return new Promise((resolve, reject) => {
 
       if (!query){
-        console.log('no query');
         resolve([]);
       } else if (data.length>0){
 
@@ -39,7 +40,9 @@ export default class Autocomplete {
         resolve(results)
 
       } else if (this.options.url){
-        resolve(this.apiHandler.getData(query));
+        this.apiHandler.getData(query).then( results => {
+          resolve(results);
+        }).catch(err => {reject(err)})
       }
 
     });
@@ -60,7 +63,7 @@ export default class Autocomplete {
       });
 
       // Pass the value to the onSelect callback
-      el.addEventListener('click', (event) => {
+      el.addEventListener('click', () => {
         const { onSelect } = this.options;
         if (typeof onSelect === 'function') onSelect(result.value);
         this.rootEl.firstElementChild.value=result.text;
