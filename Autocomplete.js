@@ -1,31 +1,48 @@
+import ApiHandler from './ApiHandler'
+
 export default class Autocomplete {
   constructor(rootEl, options = {}) {
-    options = Object.assign({ numOfResults: 10, data: [] }, options);
+    options = Object.assign({ numOfResults: 10, data: [], url: undefined }, options);
     Object.assign(this, { rootEl, options });
+    if (this.options.url){
+      this.apiHandler = new ApiHandler(this.options)
+    }
 
     this.init();
   }
 
   onQueryChange(query) {
     // Get data for the dropdown
-    let results = this.getResults(query, this.options.data);
-    results = results.slice(0, this.options.numOfResults);
-
-    this.updateDropdown(results);
+    this.getResults(query, this.options.data).then(results => {
+      this.updateDropdown(results);
+    })
   }
 
   /**
    * Given an array and a query, return a filtered array based on the query.
+   * Async function, returns a promise
    */
   getResults(query, data) {
-    if (!query) return [];
+    return new Promise((resolve, reject) => {
 
-    // Filter for matching strings
-    let results = data.filter((item) => {
-      return item.text.toLowerCase().includes(query.toLowerCase());
+      if (!query){
+        console.log('no query');
+        resolve([]);
+      } else if (data.length>0){
+
+        // Filter for matching strings
+        let results = data.filter((item) => {
+          return item.text.toLowerCase().includes(query.toLowerCase());
+        });
+
+        results = results.slice(0, this.options.numOfResults);
+        resolve(results)
+
+      } else if (this.options.url){
+        resolve(this.apiHandler.getData(query));
+      }
+
     });
-
-    return results;
   }
 
   updateDropdown(results) {
@@ -46,6 +63,7 @@ export default class Autocomplete {
       el.addEventListener('click', (event) => {
         const { onSelect } = this.options;
         if (typeof onSelect === 'function') onSelect(result.value);
+        this.rootEl.firstElementChild.value=result.text;
       });
 
       fragment.appendChild(el);
