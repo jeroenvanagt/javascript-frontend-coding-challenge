@@ -56,7 +56,7 @@ export default class Autocomplete {
   createResultsEl(results) {
     const fragment = document.createDocumentFragment();
     results.forEach((result) => {
-      const el = document.createElement('li');
+      const el = document.createElement('option');
       Object.assign(el, {
         className: 'result',
         textContent: result.text,
@@ -94,7 +94,8 @@ export default class Autocomplete {
     this.rootEl.appendChild(this.inputEl)
 
     // Build results dropdown
-    this.listEl = document.createElement('ul');
+    this.listEl = document.createElement('select');
+    this.listEl.multiple="multiple";
     Object.assign(this.listEl, { className: 'results' });
     this.rootEl.appendChild(this.listEl);
   }
